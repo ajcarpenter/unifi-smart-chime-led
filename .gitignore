@@ -1,0 +1,5 @@
+chime_tool_config.local.json
+venv/
+__pycache__/
+*.pyc
+UP_Chime_PoE_LED_Analysis.md
