@@ -1,72 +1,60 @@
-# UP Chime PoE LED Tools
+# UP Chime PoE LED Tool
 
-This repo now keeps a small supported toolset for working with the UP Chime PoE LED through a live UniFi Protect process.
+Control the UP Chime PoE LED with `set_chime_led.py`.
 
-## Supported script
+## Requirements
 
-- `set_chime_led.py`
-  - Sends the verified payload `{state: "off"}` or `{state: "on"}` through Protect's live `DeviceConnection`
+- `python3`
+- `sshpass`
+- Network access to the NVR
+- SSH access for the configured NVR account
+- UniFi Protect running
+- The Protect Node inspector available on `127.0.0.1:9229`
 
-The firmware/reverse-engineering notes remain in `UP_Chime_PoE_LED_Analysis.md`.
-
-## Local configuration
-
-Copy the example config and fill in your local values:
+## Setup
 
 ```bash
 cp chime_tool_config.example.json chime_tool_config.local.json
 ```
 
-Required fields:
+Fill in `chime_tool_config.local.json`:
 
 - `nvr_host`
 - `nvr_user`
 - `nvr_password`
 - `chime_mac`
 
-Automatically detected at runtime:
+`chime_tool_config.local.json` is gitignored.
 
-- Protect Node binary on the NVR
-- Active inspector WebSocket URL from `http://127.0.0.1:9229/json`
-- Webpack `DeviceConnection` module id
-
-The local config file is gitignored.
-
-You can also override any value with environment variables:
+Optional environment overrides:
 
 - `CHIME_NVR_HOST`
 - `CHIME_NVR_USER`
 - `CHIME_NVR_PASSWORD`
 - `CHIME_CHIME_MAC`
-
-Optional overrides exist for the auto-detected values if needed:
-
 - `CHIME_NODE_BINARY`
 - `CHIME_INSPECTOR_WS_URL`
 - `CHIME_DEVICE_CONNECTION_MODULE_ID`
 
 ## Usage
 
-Turn the LED off:
-
 ```bash
 python3 set_chime_led.py off
-```
-
-Turn the LED on:
-
-```bash
 python3 set_chime_led.py on
-```
-
-Use an explicit config file path:
-
-```bash
 python3 set_chime_led.py off --config /path/to/chime_tool_config.local.json
 ```
 
-## Notes
+On success, the script prints JSON such as:
 
-- These scripts rely on a live Node inspector connection to the Protect process.
-- The currently verified payload shape is `{state: "off"}` / `{state: "on"}`.
-- The cleanup intentionally removed the one-off probe and attack scripts that previously held inline credentials and duplicated logic.
+```json
+{"ok":true,"requestedState":"off","response":{"errorCode":0,"body":{"status":"ok"}}}
+```
+
+## Troubleshooting
+
+- `Missing required config value`: check the config file or environment variables
+- `sshpass: command not found`: install `sshpass`
+- SSH timeout or authentication failure: verify `nvr_host`, `nvr_user`, and `nvr_password`
+- `Could not discover a Node.js binary on the NVR`: set `CHIME_NODE_BINARY`
+- `Could not discover the inspector WebSocket URL`: confirm Protect is running and the inspector is available
+- `chime connection not found`: verify `chime_mac`
